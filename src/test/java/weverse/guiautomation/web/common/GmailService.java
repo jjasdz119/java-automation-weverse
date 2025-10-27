@@ -116,7 +116,7 @@ public class GmailService {
                     users().
                     messages().
                     list("me").
-                    setQ("subject:" + APPLICATION_NAME).
+                    setQ("subject:Weverse").
                     execute();
             List<Message> messages = getMessages(response);
             return messages.size() != 0;
@@ -126,30 +126,37 @@ public class GmailService {
         }
     }
 
-    // Gmail 서비스 객체를 생성하고 반환
-    private Gmail getGmailService() throws Exception {
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        return new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-    }
+    // 최근 Weverse 이메일에서 제목 추출
+    public String getEmailSubject() {
+        try {
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
 
+            ListMessagesResponse response = service
+                    .users().messages().list(user).setQ("subject:Weverse").execute();
 
-    // 최근 이메일 제목 식별
-    public String getEmailSubject() throws Exception {
-        Gmail service = getGmailService();
-        ListMessagesResponse response = service
-                .users()
-                .messages()
-                .list(user)
-                .setQ("subject:Weserve")
-                .setMaxResults(1L)
-                .execute();
-        List<Message> messageList = response.getMessages();
-        if (messageList == null || messageList.isEmpty()) {
-            System.out.println("인증 메일이 존재하지 않음");
-            return null;
+            List<Message> messageList = response.getMessages();
+            if (messageList == null || messageList.isEmpty()) {
+                return "Weverse 이메일이 존재하지 않음";
+            }
+
+            Message message = service.users().messages().get(user, messageList.get(0).getId()).execute();
+
+            // 제목 직접 추출
+            if (message.getPayload() != null && message.getPayload().getHeaders() != null) {
+                for (MessagePartHeader header : message.getPayload().getHeaders()) {
+                    if ("Subject".equalsIgnoreCase(header.getName())) {
+                        return header.getValue();
+                    }
+                }
+            }
+            return "제목을 찾을 수 없습니다";
+
+        } catch (Exception e) {
+            System.out.println("Exception log " + e);
+            return "이메일 제목을 가져올 수 없습니다";
         }
-        return "";
     }
 }
