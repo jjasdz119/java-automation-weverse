@@ -20,8 +20,11 @@ import com.google.api.services.gmail.model.Thread;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GmailService {
+
     private static final String user = "me";
     private static final String CREDENTIALS_FILE_PATH = "credentials.json";
     private final String APPLICATION_NAME = "Weserve";
@@ -83,28 +86,6 @@ public class GmailService {
         }
     }
 
-    // 이메일 총 개수 체크
-    public int getEmailsCount() {
-        int size;
-        try {
-            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
-            List<Thread> threads = service.
-                    users().
-                    threads().
-                    list("me").
-                    execute().
-                    getThreads();
-            size = threads.size();
-        } catch (Exception e) {
-            System.out.println("Exception log " + e);
-            size = -1;
-        }
-        return size;
-    }
-
     // 제목에 "Weverse" 단어 포함된 이메일 식별
     public boolean isMailExist() {
         try {
@@ -158,5 +139,17 @@ public class GmailService {
             System.out.println("Exception log " + e);
             return "이메일 제목을 가져올 수 없습니다";
         }
+    }
+
+    // 인증코드 추출
+    public String extractAuthCode() {
+        String subject = getEmailSubject();
+        Pattern pattern = Pattern.compile("\\d{6}");
+        Matcher matcher = pattern.matcher(subject);
+
+        if (matcher.find()) {
+            return matcher.group(0);
+        }
+        return "인증 코드를 찾을 수 없음";
     }
 }
