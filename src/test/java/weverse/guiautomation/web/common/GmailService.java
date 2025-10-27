@@ -1,0 +1,144 @@
+package weverse.guiautomation.web.common;
+
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.GmailScopes;
+import com.google.api.services.gmail.model.ListMessagesResponse;
+import com.google.api.services.gmail.model.Message;
+import com.google.api.services.gmail.model.MessagePartHeader;
+import com.google.api.services.gmail.model.Thread;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GmailService {
+    private static final String user = "me";
+    private static final String CREDENTIALS_FILE_PATH = "credentials.json";
+    private final String APPLICATION_NAME = "Weserve";
+    private final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+    private final List<String> SCOPES = List.of(GmailScopes.GMAIL_READONLY);
+    private final String TOKENS_DIRECTORY_PATH;
+
+    public GmailService() {
+        TOKENS_DIRECTORY_PATH = System.getProperty("user.dir") +
+                File.separator + "src" +
+                File.separator + "test" +
+                File.separator + "resources";
+    }
+
+    private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+
+        InputStream in = getClass().getClassLoader().getResourceAsStream(CREDENTIALS_FILE_PATH);
+        if (in == null) {
+            throw new FileNotFoundException("credentials.json 파일을 찾을 수 없음 " + CREDENTIALS_FILE_PATH);
+        }
+
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        File tokensDir = new File(TOKENS_DIRECTORY_PATH);
+        if (!tokensDir.exists()) {
+            tokensDir.mkdirs();
+        }
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8080).build();
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+    }
+
+    // 이메일 목록 가져오기
+    private List<Message> getMessages(ListMessagesResponse response) {
+        List<Message> messages = new ArrayList<>();
+        try {
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+            while (response.getMessages() != null) {
+                messages.addAll(response.getMessages());
+                if (response.getNextPageToken() != null) {
+                    String pageToken = response.getNextPageToken();
+                    response = service.users().messages().list(user)
+                            .setPageToken(pageToken).execute();
+                } else {
+                    break;
+                }
+            }
+            return messages;
+        } catch (Exception e) {
+            System.out.println("Exception log " + e);
+            return messages;
+        }
+    }
+
+    // 이메일 총 개수 체크
+    public int getEmailsCount() {
+        int size;
+        try {
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+            List<Thread> threads = service.
+                    users().
+                    threads().
+                    list("me").
+                    execute().
+                    getThreads();
+            size = threads.size();
+        } catch (Exception e) {
+            System.out.println("Exception log " + e);
+            size = -1;
+        }
+        return size;
+    }
+
+    // 제목에 "Weverse" 단어 포함된 이메일 식별
+    public boolean isMailExist() {
+        try {
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+            ListMessagesResponse response = service.
+                    users().
+                    messages().
+                    list("me").
+                    setQ("subject:Weverse").
+                    execute();
+            List<Message> messages = getMessages(response);
+            return messages.size() != 0;
+        } catch (Exception e) {
+            System.out.println("Exception log" + e);
+            return false;
+        }
+    }
+
+    /**
+     * Message 객체에서 특정 헤더(예: Subject)의 값을 추출하는 헬퍼 메소드
+     */
+    public String extractHeaderValue(Message message, String headerName) {
+        if (message.getPayload() != null && message.getPayload().getHeaders() != null) {
+            for (MessagePartHeader header : message.getPayload().getHeaders()) {
+                // 대소문자 구분 없이 헤더 이름 비교
+                if (header.getName().equalsIgnoreCase(headerName)) {
+                    return header.getValue();
+                }
+            }
+        }
+        return null;
+    }
+}
