@@ -37,7 +37,6 @@ public class GmailService {
     }
 
     private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
-
         InputStream in = getClass().getClassLoader().getResourceAsStream(CREDENTIALS_FILE_PATH);
         if (in == null) {
             throw new FileNotFoundException("credentials.json 파일을 찾을 수 없음 " + CREDENTIALS_FILE_PATH);
@@ -117,7 +116,7 @@ public class GmailService {
                     users().
                     messages().
                     list("me").
-                    setQ("subject:Weverse").
+                    setQ("subject:" + APPLICATION_NAME).
                     execute();
             List<Message> messages = getMessages(response);
             return messages.size() != 0;
@@ -127,18 +126,30 @@ public class GmailService {
         }
     }
 
-    /**
-     * Message 객체에서 특정 헤더(예: Subject)의 값을 추출하는 헬퍼 메소드
-     */
-    public String extractHeaderValue(Message message, String headerName) {
-        if (message.getPayload() != null && message.getPayload().getHeaders() != null) {
-            for (MessagePartHeader header : message.getPayload().getHeaders()) {
-                // 대소문자 구분 없이 헤더 이름 비교
-                if (header.getName().equalsIgnoreCase(headerName)) {
-                    return header.getValue();
-                }
-            }
+    // Gmail 서비스 객체를 생성하고 반환
+    private Gmail getGmailService() throws Exception {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        return new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+    }
+
+
+    // 최근 이메일 제목 식별
+    public String getEmailSubject() throws Exception {
+        Gmail service = getGmailService();
+        ListMessagesResponse response = service
+                .users()
+                .messages()
+                .list(user)
+                .setQ("subject:Weserve")
+                .setMaxResults(1L)
+                .execute();
+        List<Message> messageList = response.getMessages();
+        if (messageList == null || messageList.isEmpty()) {
+            System.out.println("인증 메일이 존재하지 않음");
+            return null;
         }
-        return null;
+        return "";
     }
 }

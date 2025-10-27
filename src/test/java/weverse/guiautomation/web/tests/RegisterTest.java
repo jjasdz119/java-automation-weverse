@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import weverse.guiautomation.web.pages.GmailPage;
 import weverse.guiautomation.web.pages.RegisterPage;
 
 import java.time.Duration;
@@ -16,7 +15,6 @@ public class RegisterTest {
 
     private WebDriver driver;
     private RegisterPage registerPage;
-    private GmailPage gmailPage;
 
     @BeforeEach
     public void setup() {
@@ -26,7 +24,6 @@ public class RegisterTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.get("https://account.weverse.io/ko/signup/credential?client_id=wemember&v=4");
         registerPage = new RegisterPage(driver);
-        gmailPage = new GmailPage(driver);
     }
 
     @AfterEach
@@ -43,17 +40,5 @@ public class RegisterTest {
         registerPage.passwordCheckInputField().sendKeys("12e12e");
         registerPage.nicknameInputField().clear();
         registerPage.nicknameInputField().sendKeys("ollie");
-
-        // 브라우저 새 탭에서 Gmail 접근하기
-        String originalWindow = driver.getWindowHandle();
-        driver.switchTo().newWindow(WindowType.TAB);
-        driver.get("https://gmail.com");
-        gmailPage.emailInputField().sendKeys("rxvpoker001@gmail.com");
-        gmailPage.nextButton().click();
-
-        gmailPage.passwordInputField().sendKeys("Tmzkdlzx1!");
-
-        driver.switchTo().window(originalWindow);
-
     }
 }
