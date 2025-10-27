@@ -8,7 +8,6 @@ import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import weverse.guiautomation.web.common.Utils;
 import weverse.guiautomation.web.pages.LoginPage;
 import weverse.guiautomation.web.pages.MainPage;
 
@@ -20,7 +19,6 @@ public class PostTest {
     private WebDriver driver;
     private LoginPage loginPage;
     private MainPage mainPage;
-    private final String BASE_URL = "https://global.apis.naver.com/weverse/wevweb/users/v1.0";
 
     @BeforeEach
     public void setup() {

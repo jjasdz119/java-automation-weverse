@@ -12,7 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import weverse.guiautomation.web.common.GmailService;
-import weverse.guiautomation.web.common.Utils;
 import weverse.guiautomation.web.pages.RegisterPage;
 
 import java.time.Duration;
@@ -55,8 +54,6 @@ public class RegisterTest {
         String authCode = service.extractAuthCode();
         System.out.println("# 인증 코드: " + authCode);
         registerPage.authCodeInputField().sendKeys(authCode);
-
-
 //        registerPage.nextButton().click(); 나중에 주석 풀기
     }
 }
