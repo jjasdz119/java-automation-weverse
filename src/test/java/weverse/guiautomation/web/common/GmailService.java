@@ -15,7 +15,6 @@ import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePartHeader;
-import com.google.api.services.gmail.model.Thread;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -55,8 +54,8 @@ public class GmailService {
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
                 .setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH)))
-                .setAccessType("offline")
-                .build();
+                .setAccessType("offline").build();
+
         LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8080).build();
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
@@ -67,8 +66,7 @@ public class GmailService {
         try {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
+                    .setApplicationName(APPLICATION_NAME).build();
             while (response.getMessages() != null) {
                 messages.addAll(response.getMessages());
                 if (response.getNextPageToken() != null) {
@@ -86,35 +84,14 @@ public class GmailService {
         }
     }
 
-    // 제목에 "Weverse" 단어 포함된 이메일 식별
-    public boolean isMailExist() {
-        try {
-            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
-            ListMessagesResponse response = service.
-                    users().
-                    messages().
-                    list("me").
-                    setQ("subject:Weverse").
-                    execute();
-            List<Message> messages = getMessages(response);
-            return messages.size() != 0;
-        } catch (Exception e) {
-            System.out.println("Exception log" + e);
-            return false;
-        }
-    }
-
     // 최근 Weverse 이메일에서 제목 추출
     public String getEmailSubject() {
         try {
             final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
+                    .setApplicationName(APPLICATION_NAME).build();
 
+            Thread.sleep(3000);
             ListMessagesResponse response = service
                     .users().messages().list(user).setQ("subject:Weverse").execute();
 
