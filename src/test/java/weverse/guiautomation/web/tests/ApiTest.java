@@ -12,13 +12,15 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import weverse.guiautomation.web.pages.LoginPage;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 //https://apidog.com/kr/blog/selenium-webdriver-kr/#java-%EC%98%88%EC%A0%9C-1 참고
 
 public class ApiTest {
     private WebDriver driver;
     private LoginPage loginPage;
-    private final String BASE_URL = "https://accountapi.weverse.io/web/api/v4";
+    private final String BASE_URL = "https://global.apis.naver.com/weverse/wevweb/dm/v2.0/";
 
     @BeforeEach
     public void setup() {
@@ -45,10 +47,14 @@ public class ApiTest {
 
         // API 호출
 //        String sessionCookies = driver.manage().getCookieNamed("session_id").getValue();    // 토큰 추출
+
+        Map<String, String> queryParams = new HashMap<>();  // 파라미터
+        queryParams.put("language", "ko");
+
         String responseApi = RestAssured.given()    // RestAssured API 호출
 //                .cookie("session_id")
                 .when()
-                .get(BASE_URL + "/auth/token/by-credentials")
+                .get(BASE_URL + "/user?appId=be4d79eb8fc7bd008ee82c8ec4ff6fd4&language=ko&os=WEB&platform=WEB&wpf=pc&wmd=2txXOiK9Z3lIncJoqnYq6PIF9PE%3D&wmsgpad=1761581325797")
                 .then()
                 .statusCode(400)
                 .extract()
