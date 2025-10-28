@@ -4,14 +4,19 @@ import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import weverse.guiautomation.web.common.DriverManager;
 import weverse.guiautomation.web.common.GmailService;
 import weverse.guiautomation.web.pages.CommunityPage;
 import weverse.guiautomation.web.pages.LoginPage;
 import weverse.guiautomation.web.pages.MainPage;
+import weverse.guiautomation.web.pages.ProfilePage;
 
 import java.time.Duration;
 import java.util.List;
+
+import static org.openqa.selenium.support.ui.ExpectedConditions.attributeContains;
 
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -19,10 +24,7 @@ import java.util.List;
 public class PostTest {
 
     private WebDriver driver;
-    private MainPage mainPage;
-    private LoginPage loginPage;
-    private CommunityPage communityPage;
-    private GmailService service;
+    private WebDriverWait wait;
 
     @BeforeAll
     public void setup() {
@@ -30,10 +32,11 @@ public class PostTest {
         driver = DriverManager.getDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
-        mainPage = new MainPage(driver);
-        loginPage = new LoginPage(driver);
-        communityPage = new CommunityPage(driver);
-        service = new GmailService();
+        MainPage mainPage = new MainPage(driver);
+        LoginPage loginPage = new LoginPage(driver);
+        CommunityPage communityPage = new CommunityPage(driver);
+        GmailService service = new GmailService();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         driver.navigate().to("https://weverse.io/");
         mainPage.loginButton().click();
@@ -62,7 +65,7 @@ public class PostTest {
         communityPage.headerProfile().click();
     }
 
-    @AfterEach
+    @AfterAll
     void tearDown() {
         driver.quit();
     }
@@ -71,35 +74,30 @@ public class PostTest {
     @Order(1)
     @DisplayName("포스트 작성하기 테스트")
     void testCreatePost() throws InterruptedException {
+        ProfilePage profilePage = new ProfilePage(driver);
 
         // 텍스트와 이미지 파일을 업로드하여 포스트를 생성한다.
         // 텍스트가 등록되었는지 확인한다.
 
         String content = "Hello";
 
-        driver.findElement(By.xpath("//div[contains(text(), '이야기를 나눠보세요')]")).click();
-        driver.findElement(By.xpath("//div[@id='wev-editor']")).sendKeys(content);
-//        driver.findElement(By.xpath("//label[contains(@class, 'attachment_button')][1]")).click();
+        profilePage.createPost().click();
+        profilePage.postWriteModal().sendKeys(content);
 
         // 이미지 첨부
         String projectPath = System.getProperty("user.dir");
         String imagePath = projectPath + "/src/test/resources/sample_image.png";
-        driver.findElement(By.xpath("//input[@id='weuii']")).sendKeys(imagePath);
-        Thread.sleep(10000);
+        profilePage.uploadImage().sendKeys(imagePath);
+        Thread.sleep(10000);    // 물리적 대기말고 다른 조건으로 바꿔야 함
 
-        driver.findElement(By.xpath("//*//button[@class='confirm_button']")).click();
-        driver.findElement(By.xpath("//button[contains(@class, 'secondary3')]")).click();
+        profilePage.uploadSubmitButton().click();
+        profilePage.postWriteModalSubmitButton().click();
 
-        WebElement postList = driver.findElement(By.xpath("//li[contains(@class, 'post-list')]"));
-        List<WebElement> image = postList.findElements(By.tagName("img"));
+        WebElement list = profilePage.postList();
+        List<WebElement> image = list.findElements(By.tagName("img"));
 
-        Assertions.assertTrue(postList.getText().contains(content), "입력 값이 존재하지 않음");
+        Assertions.assertTrue(list.getText().contains(content), "입력 값이 존재하지 않음");
         Assertions.assertFalse(image.isEmpty(), "이미지가 포함되어 있지 않음");
-
-        // ----------------------------------------
-
-
-        // ----------------------------------------
 
     }
 
@@ -107,30 +105,33 @@ public class PostTest {
     @Order(2)
     @DisplayName("포스트 편집하기 테스트")
     void testEditPost() throws InterruptedException {
+        ProfilePage profilePage = new ProfilePage(driver);
 
         // 저장된 텍스트를 다른 내용으로 업데이트한다.
         // 이미지 파일을 제거하고 미디어 파일을 업로드한다.
-
+        Thread.sleep(3000);
         String updateContent = "Update post";
 
-        driver.findElement(By.xpath("//button[@class='toolbar-_-button'][1]")).click();
-        driver.findElement(By.xpath("//button[@class='menu-_-button'][1]")).click();
-        driver.findElement(By.xpath("//div[@id='wev-editor']")).clear();
-        driver.findElement(By.xpath("//div[@id='wev-editor']")).sendKeys(updateContent);
+        profilePage.overFlow().click();
+        profilePage.overFlowEdit().click();
+        profilePage.postWriteModal().clear();
+        profilePage.postWriteModal().sendKeys(updateContent);
 
-        // 이미지 파일 제거 후 미디어 파일 업로드
+        // 미디어 파일 업로드
         String projectPath = System.getProperty("user.dir");
         String videoPath = projectPath + "/src/test/resources/sample_video.mp4";
-        driver.findElement(By.xpath("//input[@id='weuvi']")).sendKeys(videoPath);
+        profilePage.uploadVideo().sendKeys(videoPath);
+
         Thread.sleep(15000);
+        profilePage.uploadSubmitButton().click();
+        Thread.sleep(3000);
+        profilePage.postWriteModalSubmitButton().click();
+        Thread.sleep(3000);
+        WebElement list = profilePage.postList();
+        List<WebElement> video = list.findElements(By.tagName("svg"));
 
-        driver.findElement(By.xpath("//*//button[@class='confirm_button']")).click();
-        driver.findElement(By.xpath("//button[contains(@class, 'secondary3')]")).click();
-
-        WebElement postList = driver.findElement(By.xpath("//li[contains(@class, 'post-list')]"));
-        List<WebElement> video = postList.findElements(By.tagName("svg"));
-
-        Assertions.assertTrue(postList.getText().contains(updateContent), "입력 값이 존재하지 않음");
+        Assertions.assertTrue(list.getText().contains(updateContent), "입력 값이 존재하지 않음");
+        System.out.println("텍스트: " + updateContent);
         Assertions.assertFalse(video.isEmpty(), "동영상이 포함되어 있지 않음");
 
     }
