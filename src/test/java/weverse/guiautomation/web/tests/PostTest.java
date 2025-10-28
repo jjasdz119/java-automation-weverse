@@ -2,15 +2,9 @@ package weverse.guiautomation.web.tests;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
-import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import weverse.guiautomation.web.common.DriverManager;
-import weverse.guiautomation.web.common.PrepareManager;
-import weverse.guiautomation.web.pages.BasePage;
 import weverse.guiautomation.web.pages.LoginPage;
 import weverse.guiautomation.web.pages.MainPage;
 
@@ -21,25 +15,25 @@ public class PostTest {
 
     private WebDriver driver;
     private MainPage mainPage;
+    private LoginPage loginPage;
 
     @BeforeEach
     public void setup() {
 
-        driver = DriverManager.setConfig();
-        ChromeOptions options = new ChromeOptions();
-        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-        driver = new ChromeDriver(options);
+        driver = DriverManager.getDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
-        PrepareManager.prepareLogin(driver);
-//        driver.navigate().to("https://weverse.io/");
+        mainPage = new MainPage(driver);
+        loginPage = new LoginPage(driver);
 
-        mainPage.loginButton();
+        driver.navigate().to("https://weverse.io/");
 
-        mainPage.searchCommunity().click();
-        mainPage.searchCommunityList().clear();
-        mainPage.communityJoinButton().click();
+        mainPage.loginButton().click();
 
+        loginPage.emailLoginButton().click();
+        loginPage.emailInputField().sendKeys("rxvpoker002@gmail.com");
+        loginPage.passwordInputField().sendKeys("12e12e1!");
+        loginPage.loginButton().click();
     }
 
     @AfterEach

@@ -10,7 +10,6 @@ public class MainPage {
 
     private WebDriver driver;
 
-
     private static final By LOGIN_BUTTON = By.xpath("//button[@type='button' and contains(., '로그인')]");
     private static final By SEARCH_COMMUNITY = By.xpath("//span[text()='커뮤니티 찾기']");
     private static final By SEARCH_COMMUNITY_LIST = By.xpath("//ul[contains(@class, 'search-community-list-view')]");
