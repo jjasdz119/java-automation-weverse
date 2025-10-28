@@ -10,6 +10,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import weverse.guiautomation.web.common.DriverManager;
 import weverse.guiautomation.web.common.PrepareManager;
+import weverse.guiautomation.web.pages.BasePage;
 import weverse.guiautomation.web.pages.LoginPage;
 import weverse.guiautomation.web.pages.MainPage;
 
@@ -31,6 +32,7 @@ public class PostTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
         PrepareManager.prepareLogin(driver);
+//        driver.navigate().to("https://weverse.io/");
 
         mainPage.loginButton();
 

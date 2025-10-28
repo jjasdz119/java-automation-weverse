@@ -4,9 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-public class LoginPage {
-
-    private WebDriver driver;
+public class LoginPage extends BasePage {
 
     private static final By EMAIL_LOGIN_BUTTON = By.xpath("//button[@type='button' and contains(., '이메일')]");
     private static final By EMAIL_INPUT_FIELD = By.xpath("//input[@type='text']");
@@ -15,9 +13,8 @@ public class LoginPage {
     private static final By LOGIN_BUTTON = By.xpath("//span[@class='button_text__8s9QP']");
     private static final By VERIFY_AUTH_BUTTON = By.xpath("//button[contains(@class, 'AuthLoginCredential')]");
 
-
     public LoginPage(WebDriver driver) {
-        this.driver = driver;
+        super(driver);
     }
 
     public WebElement emailLoginButton() {
