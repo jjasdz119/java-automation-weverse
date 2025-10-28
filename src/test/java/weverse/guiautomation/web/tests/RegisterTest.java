@@ -1,6 +1,5 @@
 package weverse.guiautomation.web.tests;
 
-import jdk.jshell.execution.Util;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,10 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import weverse.guiautomation.web.common.GmailService;
+import weverse.guiautomation.web.pages.RegisterAgreementPage;
+import weverse.guiautomation.web.pages.RegisterCompletePage;
 import weverse.guiautomation.web.pages.RegisterPage;
 
 import java.time.Duration;
@@ -20,6 +18,8 @@ public class RegisterTest {
 
     private WebDriver driver;
     private RegisterPage registerPage;
+    private RegisterAgreementPage agreementPage;
+    private RegisterCompletePage registerCompletePage;
 
     @BeforeEach
     public void setup() {
@@ -29,6 +29,7 @@ public class RegisterTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.get("https://account.weverse.io/ko/signup/credential?client_id=wemember&v=4");
         registerPage = new RegisterPage(driver);
+        agreementPage = new RegisterAgreementPage(driver);
     }
 
     @AfterEach
@@ -54,6 +55,13 @@ public class RegisterTest {
         String authCode = service.extractAuthCode();
         System.out.println("# 인증 코드: " + authCode);
         registerPage.authCodeInputField().sendKeys(authCode);
-//        registerPage.nextButton().click(); 나중에 주석 풀기
+//        registerPage.nextButton().click();                      ** 과제 제출하기 전 주석 풀기
+
+        // 이용약관 동의
+        agreementPage.agreeAllCheckbox().click();
+        agreementPage.registerCompleteButton().click();
+
+        // 가입완료 화면 > 메인으로 랜딩
+        registerCompletePage.startButton().click();
     }
 }
