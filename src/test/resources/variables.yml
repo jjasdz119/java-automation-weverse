@@ -1,6 +1,7 @@
 pages:
+  login_page: "https://account.weverse.io/ko/login/"
   main_page: "https://weverse.io/"
-  login_page: "https://account.weverse.io/ko/login/credential?client_id=wemember&v=4"
+  profile_page: ""
 
 accounts:
   new:

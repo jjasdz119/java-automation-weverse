@@ -8,6 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import weverse.guiautomation.web.common.DriverManager;
 import weverse.guiautomation.web.common.PrepareManager;
 import weverse.guiautomation.web.pages.LoginPage;
 import weverse.guiautomation.web.pages.MainPage;
@@ -18,19 +19,25 @@ import java.time.Duration;
 public class PostTest {
 
     private WebDriver driver;
-    private LoginPage loginPage;
     private MainPage mainPage;
 
     @BeforeEach
     public void setup() {
+
+        driver = DriverManager.setConfig();
         ChromeOptions options = new ChromeOptions();
         options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        driver.get("https://account.weverse.io/ko/login/credential?client_id=wemember&v=4");
-        mainPage = new MainPage(driver);
-        loginPage = new LoginPage(driver);
+
         PrepareManager.prepareLogin(driver);
+
+        mainPage.loginButton();
+
+        mainPage.searchCommunity().click();
+        mainPage.searchCommunityList().clear();
+        mainPage.communityJoinButton().click();
+
     }
 
     @AfterEach
@@ -38,12 +45,6 @@ public class PostTest {
         driver.quit();
     }
 
-    @Test
-    void testLogin() {
-        loginPage.emailInputField().sendKeys();
-        loginPage.passwordInputField().sendKeys();
-        loginPage.loginButton().click();
-    }
 
     // 사전조건: 생성한 계정 로그인, 임의 커뮤니티 가입, 프로필 엔드 접근(?)
 

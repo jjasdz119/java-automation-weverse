@@ -8,6 +8,7 @@ public class LoginPage {
 
     private WebDriver driver;
 
+    private static final By EMAIL_LOGIN_BUTTON = By.xpath("//button[@type='button' and contains(., '이메일')]");
     private static final By EMAIL_INPUT_FIELD = By.xpath("//input[@type='text']");
     private static final By PASSWORD_INPUT_FIELD = By.xpath("//input[@type='password']");
     private static final By AUTH_INPUT_FIELD = By.xpath("//input[contains(@placeholder, '인증')]");
@@ -17,6 +18,10 @@ public class LoginPage {
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
+    }
+
+    public WebElement emailLoginButton() {
+        return driver.findElement(EMAIL_LOGIN_BUTTON);
     }
 
     public WebElement emailInputField() {
