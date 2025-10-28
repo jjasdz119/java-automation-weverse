@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import weverse.guiautomation.web.common.DriverManager;
 import weverse.guiautomation.web.common.GmailService;
 import weverse.guiautomation.web.pages.RegisterAgreementPage;
 import weverse.guiautomation.web.pages.RegisterCompletePage;
@@ -18,18 +19,20 @@ public class RegisterTest {
 
     private WebDriver driver;
     private RegisterPage registerPage;
-    private RegisterAgreementPage agreementPage;
+    private RegisterAgreementPage registierAgreementPage;
     private RegisterCompletePage registerCompletePage;
 
     @BeforeEach
     public void setup() {
-        ChromeOptions options = new ChromeOptions();
-        options.setPageLoadStrategy(PageLoadStrategy.NORMAL);
-        driver = new ChromeDriver(options);
+
+        driver = DriverManager.getDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
         driver.get("https://account.weverse.io/ko/signup/credential?client_id=wemember&v=4");
+
         registerPage = new RegisterPage(driver);
-        agreementPage = new RegisterAgreementPage(driver);
+        registierAgreementPage = new RegisterAgreementPage(driver);
+        registerCompletePage = new RegisterCompletePage(driver);
     }
 
     @AfterEach
@@ -44,7 +47,7 @@ public class RegisterTest {
         // 회원정보 입력
         registerPage.emailInputField().sendKeys("rxvpoker001@gmail.com");   // Gmail API 연결해놓은 이메일
         registerPage.sendCodeButton().click();
-        registerPage.passwordInputField().sendKeys("12e12e11");
+        registerPage.passwordInputField().sendKeys("12e12e1!");
         registerPage.passwordCheckInputField().sendKeys("12e12e1!");
         registerPage.nicknameInputField().clear();
         registerPage.nicknameInputField().sendKeys("ollie");
@@ -55,11 +58,14 @@ public class RegisterTest {
         String authCode = service.extractAuthCode();
         System.out.println("# 인증 코드: " + authCode);
         registerPage.authCodeInputField().sendKeys(authCode);
-//        registerPage.nextButton().click();                      ** 과제 제출하기 전 주석 풀기
+        registerPage.authCodeCheck().click();
+
+        registerPage.nextButton().click();
 
         // 이용약관 동의
-        agreementPage.agreeAllCheckbox().click();
-        agreementPage.registerCompleteButton().click();
+        registierAgreementPage.agreeAllCheckbox().click();
+        registierAgreementPage.registerCompleteButton().click();
+        registierAgreementPage.agreeSubmitButton();
 
         // 가입완료 화면 > 메인으로 랜딩
         registerCompletePage.startButton().click();

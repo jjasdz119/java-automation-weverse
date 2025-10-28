@@ -91,7 +91,7 @@ public class GmailService {
             Gmail service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                     .setApplicationName(APPLICATION_NAME).build();
 
-            Thread.sleep(3000);
+            Thread.sleep(5000);
             ListMessagesResponse response = service
                     .users().messages().list(user).setQ("subject:Weverse").execute();
 

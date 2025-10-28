@@ -10,7 +10,7 @@ public class RegisterAgreementPage {
 
     private static final By AGREE_ALL_CHECKBOX = By.xpath("//span[contains(@class, 'checkbox')][1]");
     private static final By REGISTER_COMPLETE_BUTTON = By.xpath("//button[contains(@class, '9suU6 button')]");
-    private static final By AGREE_SUBMIT_BUTTON = By.xpath("//button[contains(@class, 'mlCm7 button')]");
+    private static final By AGREE_SUBMIT_BUTTON = By.xpath("//button[contains(@class, 'dialog-button')]");
 
 
     public RegisterAgreementPage(WebDriver driver) {
