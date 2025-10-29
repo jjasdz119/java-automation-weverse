@@ -13,7 +13,6 @@ import weverse.guiautomation.web.pages.LoginPage;
 import weverse.guiautomation.web.pages.MainPage;
 import weverse.guiautomation.web.pages.ProfilePage;
 
-import java.sql.DriverManager;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ public class PostTest {
     @BeforeAll
     public void setup() {
 
-        java.sql.DriverManager DriverManager;
         driver = DriverManager.getDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         Map<String, String> account = ConfigManager.getAccount(0);

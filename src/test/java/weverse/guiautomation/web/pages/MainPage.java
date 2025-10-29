@@ -26,8 +26,7 @@ public class MainPage {
         return driver.findElement(HOME_BUTTON);
     }
 
-    public WebElement loginButton() {
-        return driver.findElement(LOGIN_BUTTON);
+    public WebElement loginButton() { return driver.findElement(LOGIN_BUTTON);
     }
 
     public WebElement recommendedArtist() {
