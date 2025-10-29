@@ -4,9 +4,5 @@ pages:
   profile_page: ""
 
 accounts:
-  new:
-    - email: "rxvpoker001@gmail.com"
-      password: "123"
-  exist:
-    - email: ${{ secrets.USER_EMAIL }}
-      password: ${{ secrets.USER_PASSWORD }}
+  - email: "rxvpoker001@gmail.com"
+    password: "12e12e1!"

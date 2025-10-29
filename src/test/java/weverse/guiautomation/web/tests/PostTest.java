@@ -4,8 +4,8 @@ import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import weverse.guiautomation.web.common.ConfigManager;
 import weverse.guiautomation.web.common.DriverManager;
 import weverse.guiautomation.web.common.GmailService;
 import weverse.guiautomation.web.pages.CommunityPage;
@@ -13,11 +13,10 @@ import weverse.guiautomation.web.pages.LoginPage;
 import weverse.guiautomation.web.pages.MainPage;
 import weverse.guiautomation.web.pages.ProfilePage;
 
+import java.sql.DriverManager;
 import java.time.Duration;
 import java.util.List;
-
-import static org.openqa.selenium.support.ui.ExpectedConditions.attributeContains;
-
+import java.util.Map;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -29,8 +28,10 @@ public class PostTest {
     @BeforeAll
     public void setup() {
 
+        java.sql.DriverManager DriverManager;
         driver = DriverManager.getDriver();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        Map<String, String> account = ConfigManager.getAccount(0);
 
         MainPage mainPage = new MainPage(driver);
         LoginPage loginPage = new LoginPage(driver);
@@ -43,8 +44,8 @@ public class PostTest {
 
         // 로그인
         loginPage.emailLoginButton().click();
-        loginPage.emailInputField().sendKeys("rxvpoker001@gmail.com");
-        loginPage.passwordInputField().sendKeys("12e12e1!");
+        loginPage.emailInputField().sendKeys(account.get("email"));
+        loginPage.passwordInputField().sendKeys(account.get("password"));
         loginPage.loginButton().click();
 
         // 인증 코드 입력

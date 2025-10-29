@@ -19,7 +19,8 @@ dependencies {
     testImplementation("com.google.oauth-client:google-oauth-client-jetty:1.34.1")
     testImplementation("com.google.apis:google-api-services-gmail:v1-rev20220404-2.0.0")
     testImplementation("io.rest-assured:rest-assured:5.5.0")
-//    testImplementation("commons-codec:commons-codec:1.15")
+    testImplementation("org.yaml:snakeyaml:2.0")
+
 }
 
 tasks.test {
